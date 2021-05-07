@@ -1,6 +1,8 @@
 ## A suggested work plan (not mandatory)
 
-For technical details look up a already existing project or ask
+*For technical details look up an already existing project or just ask*
+
+Note: Database we grow in each step so be patient
 
 1. Create a database table for "crawled URLs" and another for "URLs to be crawled"
 2. Create a crawler that removes from the first table and adds to the second one
@@ -11,12 +13,12 @@ Technical Notes:
 * jsoup library has the following objects to use: Document, Element, URL,.........
 
 3. Create a table that says which word was found in which URL how many times (word - URL - frequency)
-4. Create a simple indexer that takes a URL from the crawled ones and split it into words and stores thin in an array
+4. Create a simple indexer that takes a URL from the crawled ones and split it into words and stores it in an array
 5. Create a simple ranker that takes an array of words and convert it to a data structure sorted by frequency
-6. add words, ,URL and frequencies to the above table
+6. Add words, URL and frequencies to the above table
 
 Technical Notes:
-* indexer is a class that uses jsoup to convert the document into strings then stores them in arrays after that it calls the  wordProcessing class that filters out the array (we can neglect this part for now) then the filtered array is passed to the ranker
+* indexer is a class that uses jsoup to convert the document into strings then stores them in arrays after that it calls the word processing class that filters out the array (we can neglect this part for now) then the filtered array is passed to the ranker
 * the ranker is a class that take an array of strings and analyze it according to frequency (and HTML tag which we can also neglect for now)
 
 7. Create a simple query engine that takes a search word and creates a heap 
