@@ -2,7 +2,11 @@
 
 *For technical details look up an already existing project or just ask*
 
-Note: Database we grow in each step so be patient
+Note: 
+* Database we grow in each step so be patient
+* Some Libraries are uploaded
+* Use mysql (Xampp or Oracle)
+* Use Intellij idea
 
 1. Create a database table for "crawled URLs" and another for "URLs to be crawled"
 2. Create a crawler that removes from the first table and adds to the second one
