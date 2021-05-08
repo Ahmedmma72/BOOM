@@ -3,7 +3,7 @@
 *For technical details look up an already existing project or just ask*
 
 Note: 
-* Database we grow in each step so be patient
+* Database will grow in each step so be patient
 * Some Libraries are uploaded
 * Use mysql (Xampp or Oracle)
 * Use Intellij idea
