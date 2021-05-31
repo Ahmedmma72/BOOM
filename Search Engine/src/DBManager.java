@@ -2,7 +2,7 @@ import java.sql.*;
 
 public class DBManager {
     static final private String username = "root";
-    static final private String password = "";
+    static final private String password = "root";
     static final private String dbName = "SearchEngine";
     static final private String host = "localhost";
     static final private String port = "3306";
@@ -21,6 +21,7 @@ public class DBManager {
         return conn;
     }
 
+    // This main is just for example
     public static void main(String[] args) throws SQLException {
         // Get connection instance
         Connection conn = getDBConnection();
