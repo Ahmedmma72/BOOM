@@ -18,7 +18,7 @@ public class Crawler {
 
     public String escapeMetaCharacters(String inputString) {
         final String[] metaCharacters = {"\"", "'", "\\", "^", "$", "{", "}", "[", "]", "(", ")",
-                ".", "*", "+", "?", "|", "<", ">", "-", "&", "%"};
+                ".", "*", "+", "?", "|", "<", ">", "-", "&", "%","_"};
         for (String metaCharacter : metaCharacters) {
             if (inputString.contains(metaCharacter)) {
                 inputString = inputString.replace(metaCharacter, " ");
