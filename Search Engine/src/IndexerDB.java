@@ -10,7 +10,7 @@ public class IndexerDB {
         DBManager.close();
     }
     public static void updateURL(String URL,String title,String content) throws SQLException {
-        String sql = "UPDATE CrawledURLs set indexed = true, titles = ?, paragraphs = ? WHERE URL = ?";
+        String sql = "UPDATE urls set indexed = true, titles = ?, paragraphs = ? WHERE URL = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, title);
         ps.setString(2, content);
@@ -18,7 +18,7 @@ public class IndexerDB {
         ps.executeUpdate();
     }
     public static String getNonIndexedURL() throws SQLException {
-        String sql = "SELECT URL FROM CrawledURLs WHERE indexed IS false LIMIT 1";
+        String sql = "SELECT URL FROM urls WHERE indexed IS false LIMIT 1";
         ResultSet result = connection.createStatement().executeQuery(sql);
         if (result.next()) {
             return result.getString(1);
@@ -50,10 +50,18 @@ public class IndexerDB {
         ps.setInt(4, URLid);
         ps.executeUpdate();
         }
-
     }
+   /*public static void indexWords(HashMap<String, Double> TF,String URL) throws SQLException {
+       int URLid = URLid(URL);
+       StringBuilder sql = new StringBuilder();
+       for (Entry<String, Double> entry : TF.entrySet()) {
+           sql.append("INSERT INTO Words(word,stem,TF,URLID) VALUES (\"").append(entry.getKey()).append("\",\"").append(Extract.stemS(entry.getKey())).append("\",").append(entry.getValue()).append(",").append(URLid).append(");");
+       }
+       System.out.println(sql.toString());
+       connection.createStatement().executeUpdate(sql.toString());
+   }*/
     private static int URLid(String URL) throws SQLException {
-        String sql = "SELECT id FROM CrawledURLs WHERE URL =  ?";
+        String sql = "SELECT id FROM urls WHERE URL =  ?";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1,URL);
         ResultSet result =  ps.executeQuery();

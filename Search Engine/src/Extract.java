@@ -47,10 +47,10 @@ public class Extract {
     }
     public static String escapeMetaCharacters(String inputString) {
         final String[] metaCharacters = {"\"", "'", "\\", "^", "$", "{", "}", "[", "]", "(", ")",
-                ".", "*", "+", "?", "|", "<", ">", "-", "&", "%"};
+                ".", "*", "+", "?", "|", "<", ">", "-", "&", "%","_","!",":",";","~","`","/"};
         for (String metaCharacter : metaCharacters) {
             if (inputString.contains(metaCharacter)) {
-                inputString = inputString.replace(metaCharacter, " ");
+                inputString = inputString.replace(metaCharacter, "");
             }
         }
         for(int i=0;i<inputString.length();i++){
@@ -61,5 +61,4 @@ public class Extract {
         }
         return inputString.replaceAll("(?m)^[ \t]*\r?\n", "");
     }
-
 }
