@@ -1,9 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Scanner;
+import java.util.*;
+
 import opennlp.tools.stemmer.PorterStemmer;
 
 public class Extract {
@@ -12,22 +10,21 @@ public class Extract {
     public static HashSet<String>stoppingWords;
 
     private static void getStoppingWords(){
-        stoppingWords=new HashSet<>();
-        try{
-        File f = new File("src/StoppingWords.txt");
-        Scanner s = new Scanner(f);
-        while (s.hasNextLine()){
-            String data = s.nextLine();
-           // System.out.println(data);
-            stoppingWords.add(data);
+            stoppingWords=new HashSet<>();
+            try{
+            File f = new File("src/StoppingWords.txt");
+            Scanner s = new Scanner(f);
+            while (s.hasNextLine()){
+                String data = s.nextLine();
+               // System.out.println(data);
+                stoppingWords.add(data);
+            }
+            s.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
         }
-        s.close();
-    } catch (FileNotFoundException e) {
-        System.out.println("An error occurred.");
-        e.printStackTrace();
     }
-
-}
     public static ArrayList<String> removeStoppingWords(ArrayList<String> listOfWords) throws FileNotFoundException {
         getStoppingWords();
         ArrayList<String>newListOfWords=new ArrayList<>();
@@ -37,7 +34,8 @@ public class Extract {
         }
         return newListOfWords;
     }
-    public static ArrayList<String> SplitSentence(String sentence){
+    public static ArrayList<String> splitSentence(String sentence){
+        sentence=sentence.toLowerCase();
         String[]  s = sentence.split(" ");
         return new ArrayList<String>(Arrays.asList(s).subList(0, s.length));
     }
@@ -46,19 +44,9 @@ public class Extract {
         return  s.stem(string);
     }
     public static String escapeMetaCharacters(String inputString) {
-        final String[] metaCharacters = {"\"", "'", "\\", "^", "$", "{", "}", "[", "]", "(", ")",
-                ".", "*", "+", "?", "|", "<", ">", "-", "&", "%","_","!",":",";","~","`","/"};
-        for (String metaCharacter : metaCharacters) {
-            if (inputString.contains(metaCharacter)) {
-                inputString = inputString.replace(metaCharacter, "");
-            }
-        }
-        for(int i=0;i<inputString.length();i++){
-            int asc=inputString.charAt(i);
-            if(asc > 255){
-                inputString=inputString.replace(String.valueOf(inputString.charAt(i)),"");
-            }
-        }
-        return inputString.replaceAll("(?m)^[ \t]*\r?\n", "");
+        inputString=inputString.replaceAll("(?m)^[ \t]*\r?\n", "");
+        inputString=inputString.replaceAll("[^A-Za-z ]","");
+        inputString=inputString.replaceAll("\\s+", " ");
+        return inputString.trim();
     }
 }

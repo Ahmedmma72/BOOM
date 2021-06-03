@@ -9,11 +9,11 @@ public class IndexerDB {
     public static void close() throws SQLException {
         DBManager.close();
     }
-    public static void updateURL(String URL,String title,String content) throws SQLException {
+    public static void updateURL(String URL,String title,String Description) throws SQLException {
         String sql = "UPDATE urls set indexed = true, titles = ?, paragraphs = ? WHERE URL = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, title);
-        ps.setString(2, content);
+        ps.setString(2, Description);
         ps.setString(3, URL);
         ps.executeUpdate();
     }
@@ -26,28 +26,31 @@ public class IndexerDB {
         return null;
     }
     public static HashMap<String,Double> calcTF(ArrayList<String> listOfWords, int countOfWords){
+
         HashMap<String,Double> TF = new HashMap<>();
-        for (String word: listOfWords) {
-            if(TF.containsKey(word))
-                TF.put(word,TF.get(word)+1.0);
-            else
-                TF.put(word, 1.0);
-        }
-        //Normalize TF
-        for (Entry<String, Double> entry : TF.entrySet()) {
-            entry.setValue(entry.getValue()/countOfWords);
+        if(countOfWords!=0) {
+            for (String word : listOfWords) {
+                String sword=Extract.stemS(word);
+                if (TF.containsKey(sword))
+                    TF.put(sword, TF.get(sword) + 1.0);
+                else
+                    TF.put(sword, 1.0);
+            }
+            //Normalize TF
+            for (Entry<String, Double> entry : TF.entrySet()) {
+                entry.setValue(entry.getValue() / countOfWords);
+            }
         }
         return TF;
     }
     public static void indexWords(HashMap<String, Double> TF,String URL) throws SQLException {
         int URLid=URLid(URL);
         for (Entry<String, Double> entry : TF.entrySet()) {
-        String sql = "INSERT INTO Words(word,stem,TF,URLID) VALUES (?,?,?,?)";
+        String sql = "INSERT ignore INTO Words(word,TF,URLID) VALUES (?,?,?)";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, entry.getKey());
-        ps.setString(2, Extract.stemS(entry.getKey()));
-        ps.setDouble(3, entry.getValue());
-        ps.setInt(4, URLid);
+        ps.setDouble(2, entry.getValue());
+        ps.setInt(3, URLid);
         ps.executeUpdate();
         }
     }

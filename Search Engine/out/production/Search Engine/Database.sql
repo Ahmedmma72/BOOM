@@ -28,8 +28,7 @@ DROP TABLE IF EXISTS SearchEngine.Words;
 
 CREATE TABLE SearchEngine.Words(
    id INT AUTO_INCREMENT PRIMARY KEY,
-   word varchar(256),
-   stem varchar(256),
+   word varchar(2048),
    TF double,
    URLID INT,
    foreign key(URLID) references URLs(id)
