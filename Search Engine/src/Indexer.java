@@ -38,7 +38,6 @@ public class Indexer {
         System.out.printf("Finished Indexing %d words at %d %n",tCountOfWords,endTime-startTime);
         IndexerDB.close();
     }
-
     private static void parsePAGE(String url) throws IOException {
         try {
                 countOfWords = 0;
@@ -66,33 +65,5 @@ public class Indexer {
         }catch(Exception e){
                 System.out.println("error occurred in parse page");
         }
-    }
-    public static boolean isArabic(String url) throws IOException {
-
-        try {
-            Document doc = Jsoup.connect(url)
-                    .followRedirects(false)
-                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                    .referrer("http://www.google.com")
-                    .get();
-
-            assert doc != null;
-            Element taglang = doc.select("html").first();
-            if (!taglang.attr("lang").isEmpty() &&
-                    taglang.attr("lang").toLowerCase().contains("ar"))
-                return true;
-            else {
-                Elements metas = doc.select("meta");
-                for (Element meta : metas) {
-                    if (meta.attr("property").contains("locale") &&
-                            meta.attr("content").toLowerCase().contains("ar"))
-                        return true;
-                }
-            }
-            return false;
-        } catch (Exception e) {
-            System.out.println("error occurred in parse page");
-        }
-        return false;
     }
 }

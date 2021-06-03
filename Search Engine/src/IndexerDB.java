@@ -43,6 +43,7 @@ public class IndexerDB {
         }
         return TF;
     }
+    /*
     public static void indexWords(HashMap<String, Double> TF,String URL) throws SQLException {
         int URLid=URLid(URL);
         for (Entry<String, Double> entry : TF.entrySet()) {
@@ -54,15 +55,7 @@ public class IndexerDB {
         ps.executeUpdate();
         }
     }
-   /*public static void indexWords(HashMap<String, Double> TF,String URL) throws SQLException {
-       int URLid = URLid(URL);
-       StringBuilder sql = new StringBuilder();
-       for (Entry<String, Double> entry : TF.entrySet()) {
-           sql.append("INSERT INTO Words(word,stem,TF,URLID) VALUES (\"").append(entry.getKey()).append("\",\"").append(Extract.stemS(entry.getKey())).append("\",").append(entry.getValue()).append(",").append(URLid).append(");");
-       }
-       System.out.println(sql.toString());
-       connection.createStatement().executeUpdate(sql.toString());
-   }*/
+     */
     private static int URLid(String URL) throws SQLException {
         String sql = "SELECT id FROM urls WHERE URL =  ?";
         PreparedStatement ps = connection.prepareStatement(sql);
@@ -72,5 +65,26 @@ public class IndexerDB {
             return result.getInt(1);
         }
         return -1;
+    }
+    public static void indexWords(HashMap<String, Double> TF,String URL) throws SQLException {
+         int URLid=URLid(URL);
+         String sql = "INSERT ignore INTO Words(word,TF,URLID) VALUES "+helper(TF.size());
+         PreparedStatement ps = connection.prepareStatement(sql);
+         int counter=1;
+         for (Entry<String, Double> entry : TF.entrySet()) {
+             ps.setString(counter, entry.getKey());
+             ps.setDouble(counter+1, entry.getValue());
+             ps.setInt(counter+2, URLid);
+             counter+=3;
+         }
+         ps.executeUpdate();
+    }
+    public static String helper(int size){
+        StringBuilder s=new StringBuilder();
+        s.append("(?,?,?)");
+        for (int i=0;i<size-1;i++){
+            s.append(",(?,?,?)");
+        }
+        return s.toString();
     }
 }
