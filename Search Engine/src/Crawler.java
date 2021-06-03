@@ -66,7 +66,7 @@ public class Crawler {
         }
         System.out.println("INSERT INTO searchengine.`crawledurls`(`URL`, `titles`, `CrawlDate`, `paragraphs`)" +
                 " VALUES (\"" + url + "\",\"" + escapeMetaCharacters(titles.toString()) + "\",\""
-                + new Date(System.currentTimeMillis()) + "\",\"" + escapeMetaCharacters(doc.wholeText()) + "\")");
+                + new Date(System.currentTimeMillis()) + "\",\"" + escapeMetaCharacters(doc.body().text()) + "\")");
         conn.createStatement().executeUpdate("INSERT INTO searchengine.`crawledurls`(`URL`," +
                 " `titles`, `CrawlDate`, `paragraphs`)" + " VALUES (\"" + url + "\",\"" +
                 escapeMetaCharacters(titles.toString()) + "\",\"" + new Date(System.currentTimeMillis()) + "\",\""
