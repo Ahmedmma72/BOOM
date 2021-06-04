@@ -24,8 +24,8 @@ INSERT INTO searchengine.urls (`url`) VALUES ('https://www.google.com/');
 -- SELECT * FROM searchengine.urls where crawldate = NULL;
 SET SQL_SAFE_UPDATES = 0;
 UPDATE searchengine.urls SET crawldate = current_date() WHERE url = 'https://www.google.com/';
-DROP TABLE IF EXISTS SearchEngine.Words;
 
+DROP TABLE IF EXISTS SearchEngine.Words;
 CREATE TABLE SearchEngine.Words(
    id INT AUTO_INCREMENT PRIMARY KEY,
    word varchar(2048),

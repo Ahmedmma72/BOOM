@@ -1,23 +1,24 @@
-import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.SocketTimeoutException;
+import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.UnknownHostException;
+import java.net.URL;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
+import java.util.*;
 
-public class Crawler {
-    public ArrayList<String> URLs;
+public class Crawler implements Runnable {
+    public static final ArrayList<String> URLs = new ArrayList<>();
+    public static final HashMap<String, Integer> counts = new HashMap<>();
+    String current;
+
     public static int countChar(String str, char c) {
         int count = 0;
         for (int i = 0; i < str.length(); i++) {
@@ -26,16 +27,18 @@ public class Crawler {
         }
         return count;
     }
+
     public String normalizeURL(String url) {
         URI temp = URI.create(url).normalize();
 
-        String normalizedURL = null;
-        if(temp.getScheme() != null && !temp.getScheme().startsWith("http"))
+        StringBuilder normalizedURL = new StringBuilder();
+        if (temp.getScheme() != null && !temp.getScheme().startsWith("http"))
             return "https://www.google.com/";
         if (temp.getScheme() != null)
-            normalizedURL = temp.getScheme().toLowerCase() + "://";
+            normalizedURL = new StringBuilder(temp.getScheme().toLowerCase() + "://");
+
         if (temp.getHost() != null)
-            normalizedURL += temp.getHost().toLowerCase();
+            normalizedURL.append(temp.getHost().toLowerCase());
 
         String path = temp.getPath();
         if (path != null) {
@@ -43,33 +46,46 @@ public class Crawler {
                 path = path.replace("/index.html", "/");
             if (path.startsWith("/index") || path.startsWith("/default") || path.equals(""))
                 path = "/";
-            normalizedURL += path;
+            normalizedURL.append(path);
         }
 
         if (temp.getQuery() != null && !temp.getQuery().isEmpty())
-            normalizedURL += "?" + temp.getQuery().toLowerCase();
+            normalizedURL.append("?").append(temp.getQuery().toLowerCase());
 
-        if (normalizedURL != null && !normalizedURL.endsWith("/"))
-            normalizedURL += "/";
-
-        if (normalizedURL != null)
-            return normalizedURL.replaceAll("^(http|https)://[0-9][0-9][0-9].*\r*", "/");
-        else
-            return "https://www.google.com/";
+        return normalizedURL.toString().replaceAll("^(http|https)://[0-9][0-9][0-9].*\r*", "/");
     }
-    public void AddURL(String URL) throws SQLException {
+
+    public void AddURL(String URL) {
         Connection conn = DBManager.getDBConnection();
         assert conn != null;
         URL = normalizeURL(URL);
         if (countChar(URL, '/') > 3)
             return;
+        synchronized (counts) {
+            URL x = null;
+            try {
+                x = new URL(current);
+            } catch (MalformedURLException e) {
+                return;
+            }
+            String host = x.getHost();
+            counts.putIfAbsent(host, 0);
+            int temp = counts.get(host);
+            if (temp > 50)
+                return;
+            else
+                counts.replace(host, temp + 1);
+        }
         try {
             ResultSet result =
                     conn.createStatement().executeQuery("Select * FROM searchengine.urls where URL = \"" + URL + "\"");
             if (!result.next()) {
                 conn.createStatement().executeUpdate("INSERT INTO searchengine.urls (`URL`) VALUES" +
                         " ('" + URL + "');");
-                URLs.add(URL);
+                System.out.println(URL);
+                synchronized (URLs) {
+                    URLs.add(URL);
+                }
             }
         } catch (SQLException e) {
             System.out.println("Select * FROM searchengine.urls where URL = \"" + URL + "\"");
@@ -77,51 +93,116 @@ public class Crawler {
                     " ('" + URL + "');");
         }
     }
+
     public void UpdateDate(String URL) throws SQLException {
         Connection conn = DBManager.getDBConnection();
         assert conn != null;
-        conn.createStatement().executeUpdate("UPDATE searchengine.urls SET crawldate = current_date() WHERE url = '" + URLs.get(0) + "';");
-        URLs.remove(0);
+        conn.createStatement().executeUpdate("UPDATE searchengine.urls SET crawldate = current_date() WHERE url = '" + URL + "';");
     }
-    public void crawl() throws IOException, SQLException {
+
+    public static boolean isRobotSafe(String link) throws IOException {
+        URL url = new URL(link);
+        link = url.getPath();
+
+        String robotlink = url.getProtocol() + "://" + url.getHost() + "/robots.txt";
+        Document doc = Jsoup.connect(robotlink)
+                .followRedirects(false)
+                .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                .referrer("http://www.google.com")
+                .get();
+        String[] data = doc.wholeText().split("\\r?\\n");
+
+        HashMap<String, Boolean> robotSafe = new HashMap<>();
+        boolean begin = false;
+        for (String inputLine : data) {
+            inputLine = inputLine.toLowerCase();
+            if (inputLine.contains("user-agent")) {
+                if (inputLine.matches(".*\\s+\\*\\s*$")) {
+                    begin = true;
+                } else if (begin) {
+                    begin = false;
+                }
+            } else if (begin) {
+                if (inputLine.contains("disallow")) {
+                    inputLine = inputLine.replace("disallow:", "")
+                            .replace(" ", "")
+                            .replace("*", ".*");
+                    robotSafe.put(inputLine + ".*", false);
+                }
+            }
+        }
+        for (String i : robotSafe.keySet()) {
+            if (link.matches(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    @Override
+    public void run() {
         while (true) {
-            while (!URLs.isEmpty()) {
-                String url = URLs.get(0);
-                System.out.println("inside : " + url);
-                try {
-                    Document doc = Jsoup.connect(url)
+            synchronized (URLs) {
+                if (!URLs.isEmpty()) {
+                    current = URLs.get(0);
+                    URLs.remove(current);
+                } else
+                    break;
+            }
+            System.out.println("inside : " + current);
+            try {
+                if (!isRobotSafe(current)) {
+                    System.out.println("Not robot safe URL: " + current);
+                } else {
+                    Document doc = Jsoup.connect(current)
                             .followRedirects(false)
                             .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
                             .referrer("http://www.google.com")
                             .get();
                     Elements elements = doc.select("a[href]");
                     for (Element link : elements) {
-                        System.out.println(link.attr("abs:href"));
                         AddURL(link.attr("abs:href"));
                     }
-                    UpdateDate(url);
-//                    AddCrawledURLData(doc, url);
-                } catch (IllegalArgumentException | HttpStatusException
-                        | SocketTimeoutException | UnknownHostException e) {
-                    System.out.println("Malformed URL: " + url);
-                    UpdateDate(url);
+                }
+                UpdateDate(current);
+            } catch (Exception e) {
+                System.out.println("Malformed URL: " + current);
+                try {
+                    UpdateDate(current);
+                } catch (SQLException throwables) {
+                    System.out.println(throwables.getMessage());
                 }
             }
         }
     }
-    public Crawler() throws SQLException {
-        URLs = new ArrayList<>();
-        Connection conn = DBManager.getDBConnection();
-        assert conn != null;
-        ResultSet result = conn.createStatement().executeQuery("SELECT * FROM searchengine.urls where crawldate is NULL;");
-        while (result.next()) {
-            URLs.add(result.getString("URL"));
+
+    public Crawler() {
+        synchronized (URLs) {
+            if (URLs.isEmpty()) {
+                try {
+                    Connection conn = DBManager.getDBConnection();
+                    assert conn != null;
+                    ResultSet result = conn.createStatement().executeQuery("SELECT * FROM searchengine.urls where crawldate is NULL;");
+                    while (result.next()) {
+                        URLs.add(result.getString("URL"));
+                    }
+                    result.close();
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+            }
         }
-        result.close();
     }
 
-    public static void main(String[] args) throws SQLException, IOException {
-        Crawler c = new Crawler();
-        c.crawl();
+    public static void main(String[] args) {
+        Scanner keyboard = new Scanner(System.in);
+        System.out.print("Enter number of threads: ");
+        int x = keyboard.nextInt();
+        Thread[] threads = new Thread[x];
+        for (Thread t : threads) {
+            t = new Thread(new Crawler());
+            t.start();
+        }
     }
 }
