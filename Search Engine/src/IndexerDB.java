@@ -43,19 +43,6 @@ public class IndexerDB {
         }
         return TF;
     }
-    /*
-    public static void indexWords(HashMap<String, Double> TF,String URL) throws SQLException {
-        int URLid=URLid(URL);
-        for (Entry<String, Double> entry : TF.entrySet()) {
-        String sql = "INSERT ignore INTO Words(word,TF,URLID) VALUES (?,?,?)";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, entry.getKey());
-        ps.setDouble(2, entry.getValue());
-        ps.setInt(3, URLid);
-        ps.executeUpdate();
-        }
-    }
-     */
     private static int URLid(String URL) throws SQLException {
         String sql = "SELECT id FROM urls WHERE URL =  ?";
         PreparedStatement ps = connection.prepareStatement(sql);
@@ -68,7 +55,7 @@ public class IndexerDB {
     }
     public static void indexWords(HashMap<String, Double> TF,String URL) throws SQLException {
          int URLid=URLid(URL);
-         String sql = "INSERT ignore INTO Words(word,TF,URLID) VALUES "+helper(TF.size());
+         String sql = "INSERT ignore INTO Words(stem,TF,URLID) VALUES "+helper(TF.size());
          PreparedStatement ps = connection.prepareStatement(sql);
          int counter=1;
          for (Entry<String, Double> entry : TF.entrySet()) {
@@ -87,4 +74,17 @@ public class IndexerDB {
         }
         return s.toString();
     }
+     /*
+    public static void indexWords(HashMap<String, Double> TF,String URL) throws SQLException {
+        int URLid=URLid(URL);
+        for (Entry<String, Double> entry : TF.entrySet()) {
+        String sql = "INSERT ignore INTO Words(word,TF,URLID) VALUES (?,?,?)";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, entry.getKey());
+        ps.setDouble(2, entry.getValue());
+        ps.setInt(3, URLid);
+        ps.executeUpdate();
+        }
+    }
+     */
 }

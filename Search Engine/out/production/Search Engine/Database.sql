@@ -12,11 +12,9 @@ CREATE TABLE SearchEngine.urls(
 INSERT INTO searchengine.urls (`url`) VALUES ('https://www.msn.com/');
 INSERT INTO searchengine.urls (`url`) VALUES ('https://www.yahoo.com/');
 INSERT INTO searchengine.urls (`url`) VALUES ('https://www.reddit.com/');
-INSERT INTO searchengine.urls (`url`) VALUES ('https://en.wikipedia.org/wiki/Main_Page');
 INSERT INTO searchengine.urls (`url`) VALUES ('https://www.geeksforgeeks.org/');
 INSERT INTO searchengine.urls (`url`) VALUES ('https://www.imdb.com/');
 INSERT INTO searchengine.urls (`url`) VALUES ('https://www.spotify.com/eg-en/');
-INSERT INTO searchengine.urls (`url`) VALUES ('https://edition.cnn.com/');
 INSERT INTO searchengine.urls (`url`) VALUES ('https://www.gamespot.com/');
 INSERT INTO searchengine.urls (`url`) VALUES ('https://www.skysports.com/');
 INSERT INTO searchengine.urls (`url`) VALUES ('https://www.google.com/');
@@ -28,7 +26,7 @@ UPDATE searchengine.urls SET crawldate = current_date() WHERE url = 'https://www
 DROP TABLE IF EXISTS SearchEngine.Words;
 CREATE TABLE SearchEngine.Words(
    id INT AUTO_INCREMENT PRIMARY KEY,
-   word varchar(2048),
+   stem varchar(2048),
    TF double,
    URLID INT,
    foreign key(URLID) references URLs(id)
