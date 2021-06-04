@@ -148,7 +148,7 @@ public class Crawler implements Runnable {
                     current = URLs.get(0);
                     URLs.remove(current);
                 } else
-                    break;
+                    continue;
             }
             System.out.println("inside : " + current);
             try {
