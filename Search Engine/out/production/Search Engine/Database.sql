@@ -10,7 +10,7 @@ CREATE TABLE SearchEngine.urls(
     indexed    bool default 0
 );
 INSERT INTO searchengine.urls (`url`) VALUES ('https://www.msn.com/');
-INSERT INTO searchengine.urls (`url`) VALUES ('https://www.yahoo.com/');
+INSERT INTO searchengine.urls (`url`) VALUES ('https://www.yahwordoo.com/');
 INSERT INTO searchengine.urls (`url`) VALUES ('https://www.reddit.com/');
 INSERT INTO searchengine.urls (`url`) VALUES ('https://www.geeksforgeeks.org/');
 INSERT INTO searchengine.urls (`url`) VALUES ('https://www.imdb.com/');

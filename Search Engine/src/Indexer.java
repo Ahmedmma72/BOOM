@@ -34,6 +34,7 @@ public class Indexer {
            }
            IndexerDB.updateURL(URL, title,Description);
         }
+        IndexerDB.removeChars();
         long endTime = System.currentTimeMillis();
         System.out.printf("Finished Indexing %d words at %d %n",tCountOfWords,endTime-startTime);
         IndexerDB.close();
@@ -46,12 +47,11 @@ public class Indexer {
                         .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
                         .referrer("http://www.google.com")
                         .get();
-                StringBuilder titles = new StringBuilder();
-                Elements elements = document.select("h1,title");
-                for (Element title : elements) {
-                    titles.append(title.text());
+
+                title = document.title();
+                if(title.isEmpty()){
+                    title=url;
                 }
-                title = titles.toString();
                 content = Extract.escapeMetaCharacters(document.wholeText());
                 if(content.isEmpty()){
                     return;
@@ -62,8 +62,14 @@ public class Indexer {
                 tCountOfWords += countOfWords;
                 Description=document.select("meta[name=description]").get(0)
                         .attr("content");
+                Description=Extract.escapeMetaCharacters(Description);
+                if(Description.isEmpty()){
+                    Description="No Description available" ;
+                }
         }catch(Exception e){
                 System.out.println("error occurred in parse page");
+                Description="No Description available";
+                title=url;
         }
     }
 }

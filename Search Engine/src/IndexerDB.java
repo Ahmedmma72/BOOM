@@ -74,6 +74,9 @@ public class IndexerDB {
         }
         return s.toString();
     }
+    public static void removeChars() throws SQLException {
+        connection.createStatement().executeUpdate("delete FROM words where char_length(stem)=1;");
+    }
      /*
     public static void indexWords(HashMap<String, Double> TF,String URL) throws SQLException {
         int URLid=URLid(URL);
