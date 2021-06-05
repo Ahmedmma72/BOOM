@@ -3,18 +3,18 @@ import java.util.*;
 import java.util.Map.Entry;
 public class IndexerDB {
     static private Connection connection;
+    public static ArrayList<String>preview;
     public static void open() {
         connection=DBManager.getDBConnection();
     }
     public static void close() throws SQLException {
         DBManager.close();
     }
-    public static void updateURL(String URL,String title,String Description) throws SQLException {
-        String sql = "UPDATE urls set indexed = true, titles = ?, paragraphs = ? WHERE URL = ?";
+    public static void updateURL(String URL,String title) throws SQLException {
+        String sql = "UPDATE urls set indexed = true, titles = ? WHERE URL = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, title);
-        ps.setString(2, Description);
-        ps.setString(3, URL);
+        ps.setString(2, URL);
         ps.executeUpdate();
     }
     public static String getNonIndexedURL() throws SQLException {
@@ -35,24 +35,27 @@ public class IndexerDB {
         }
         return -1;
     }
-    public static void indexWords(HashMap<String, Double> TF,String URL) throws SQLException {
-         int URLid=URLid(URL);
-         String sql = "INSERT ignore INTO Words(stem,TF,URLID) VALUES "+helper(TF.size());
-         PreparedStatement ps = connection.prepareStatement(sql);
-         int counter=1;
-         for (Entry<String, Double> entry : TF.entrySet()) {
-             ps.setString(counter, entry.getKey());
-             ps.setDouble(counter+1, entry.getValue());
-             ps.setInt(counter+2, URLid);
-             counter+=3;
-         }
-         ps.executeUpdate();
+    public static void indexWords(LinkedHashMap<String, Double> TF,String URL) throws SQLException {
+        int URLid=URLid(URL);
+        String sql = "INSERT ignore INTO Words(stem,TF,preview,URLID) VALUES "+helper(TF.size());
+        PreparedStatement ps = connection.prepareStatement(sql);
+        int i=0;
+        int counter=1;
+        for (Entry<String, Double> entry : TF.entrySet()) {
+            ps.setString(counter, entry.getKey());
+            ps.setDouble(counter+1, entry.getValue());
+            ps.setString(counter+2,preview.get(i));
+            ps.setInt(counter+3, URLid);
+            counter+=4;
+            i++;
+        }
+        ps.executeUpdate();
     }
     public static String helper(int size){
         StringBuilder s=new StringBuilder();
-        s.append("(?,?,?)");
+        s.append("(?,?,?,?)");
         for (int i=0;i<size-1;i++){
-            s.append(",(?,?,?)");
+            s.append(",(?,?,?,?)");
         }
         return s.toString();
     }
@@ -62,6 +65,42 @@ public class IndexerDB {
     public static void startOver() throws SQLException {
         connection.createStatement().executeUpdate("update urls set indexed=0");
         connection.createStatement().executeUpdate("delete from words");
+    }
+    public static LinkedHashMap<String,Double> calcTF(ArrayList<String> listOfWords,ArrayList<String> listOfWordsP ,int countOfWords){
+        preview=new ArrayList<>();
+        LinkedHashMap<String,Double> TF = new LinkedHashMap<>();
+        if(countOfWords!=0) {
+            for (String word : listOfWords) {
+                String sword=Extract.stemS(word);
+                StringBuilder s=new StringBuilder();
+                if (TF.containsKey(sword)) {
+                    TF.put(sword, TF.get(sword) + 1.0);
+                }
+                else {
+                    TF.put(sword, 1.0);
+                    int count=listOfWordsP.indexOf(word);
+                    int i;
+                    if(count>10){
+                        i=count-10;
+                    }
+                    else{
+                        i=0;
+                    }
+                    while(i<listOfWordsP.size()&&i<count+10){
+                        s.append(listOfWordsP.get(i));
+                        s.append(" ");
+                        i++;
+                    }
+                    preview.add(s.toString());
+                }
+
+            }
+            //Normalize TF
+            for (Map.Entry<String, Double> entry : TF.entrySet()) {
+                entry.setValue(entry.getValue() / countOfWords);
+            }
+        }
+        return TF;
     }
      /*
     public static void indexWords(HashMap<String, Double> TF,String URL) throws SQLException {

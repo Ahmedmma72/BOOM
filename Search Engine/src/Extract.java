@@ -8,15 +8,14 @@ public class Extract {
 
     //use hashset instead of arraylist because of the performance of contain
     public static HashSet<String>stoppingWords;
-
     private static void getStoppingWords(){
-            stoppingWords=new HashSet<>();
-            try{
+        stoppingWords=new HashSet<>();
+        try{
             File f = new File("src/StoppingWords.txt");
             Scanner s = new Scanner(f);
             while (s.hasNextLine()){
                 String data = s.nextLine();
-               // System.out.println(data);
+                // System.out.println(data);
                 stoppingWords.add(data);
             }
             s.close();
@@ -48,26 +47,5 @@ public class Extract {
         inputString=inputString.replaceAll("[^A-Za-z ]","");
         inputString=inputString.replaceAll("\\s+", " ");
         return inputString.trim();
-    }
-    public static HashMap<String,Double> calcTF(ArrayList<String> listOfWords, int countOfWords){
-
-        HashMap<String,Double> TF = new HashMap<>();
-        if(countOfWords!=0) {
-            for (String word : listOfWords) {
-                String sword=Extract.stemS(word);
-                if (TF.containsKey(sword)) {
-                    TF.put(sword, TF.get(sword) + 1.0);
-                }
-                else {
-                    TF.put(sword, 1.0);
-                }
-            }
-            //Normalize TF
-           // int count=0;
-            for (Map.Entry<String, Double> entry : TF.entrySet()) {
-                entry.setValue(entry.getValue() / countOfWords);
-            }
-        }
-        return TF;
     }
 }
