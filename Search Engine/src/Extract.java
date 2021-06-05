@@ -49,4 +49,25 @@ public class Extract {
         inputString=inputString.replaceAll("\\s+", " ");
         return inputString.trim();
     }
+    public static HashMap<String,Double> calcTF(ArrayList<String> listOfWords, int countOfWords){
+
+        HashMap<String,Double> TF = new HashMap<>();
+        if(countOfWords!=0) {
+            for (String word : listOfWords) {
+                String sword=Extract.stemS(word);
+                if (TF.containsKey(sword)) {
+                    TF.put(sword, TF.get(sword) + 1.0);
+                }
+                else {
+                    TF.put(sword, 1.0);
+                }
+            }
+            //Normalize TF
+           // int count=0;
+            for (Map.Entry<String, Double> entry : TF.entrySet()) {
+                entry.setValue(entry.getValue() / countOfWords);
+            }
+        }
+        return TF;
+    }
 }

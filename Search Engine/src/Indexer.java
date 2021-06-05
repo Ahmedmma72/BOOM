@@ -2,6 +2,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,8 +19,15 @@ public class Indexer {
     private static String Description;
     public static void main(String[] args) throws SQLException, IOException {
         tCountOfWords=0;
-        System.out.println("Started Indexing");
         IndexerDB.open();
+        Scanner s = new Scanner(System.in);
+        System.out.println("Start over indexing ? enter y if yes");
+        String startOver=s.nextLine();
+        if(startOver.equals("y")){
+            IndexerDB.startOver();
+        }
+        s.close();
+        System.out.println("Started Indexing");
         String URL;
         int count=0;
         long startTime = System.currentTimeMillis();
@@ -28,11 +37,12 @@ public class Indexer {
            System.out.println("Finished Parsing "+URL);
            if (countOfWords > 0) {
                System.out.printf("started indexing page %d%n",++count);
-               HashMap<String, Double> TF = IndexerDB.calcTF(listOfWords, countOfWords);
+               HashMap<String, Double> TF = Extract.calcTF(listOfWords, countOfWords);
                IndexerDB.indexWords(TF, URL);
-               System.out.printf("finished indexing page %d%n", count);
+
            }
            IndexerDB.updateURL(URL, title,Description);
+           System.out.printf("finished indexing page %d%n", count);
         }
         IndexerDB.removeChars();
         long endTime = System.currentTimeMillis();

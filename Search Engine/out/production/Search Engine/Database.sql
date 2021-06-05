@@ -25,9 +25,9 @@ UPDATE searchengine.urls SET crawldate = current_date() WHERE url = 'https://www
 
 DROP TABLE IF EXISTS SearchEngine.Words;
 CREATE TABLE SearchEngine.Words(
-   id INT AUTO_INCREMENT PRIMARY KEY,
-   stem varchar(2048),
+   stem varchar(256),
    TF double,
    URLID INT,
+   primary key (stem,URLID),
    foreign key(URLID) references URLs(id)
 );

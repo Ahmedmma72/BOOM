@@ -25,24 +25,6 @@ public class IndexerDB {
         }
         return null;
     }
-    public static HashMap<String,Double> calcTF(ArrayList<String> listOfWords, int countOfWords){
-
-        HashMap<String,Double> TF = new HashMap<>();
-        if(countOfWords!=0) {
-            for (String word : listOfWords) {
-                String sword=Extract.stemS(word);
-                if (TF.containsKey(sword))
-                    TF.put(sword, TF.get(sword) + 1.0);
-                else
-                    TF.put(sword, 1.0);
-            }
-            //Normalize TF
-            for (Entry<String, Double> entry : TF.entrySet()) {
-                entry.setValue(entry.getValue() / countOfWords);
-            }
-        }
-        return TF;
-    }
     private static int URLid(String URL) throws SQLException {
         String sql = "SELECT id FROM urls WHERE URL =  ?";
         PreparedStatement ps = connection.prepareStatement(sql);
@@ -76,6 +58,10 @@ public class IndexerDB {
     }
     public static void removeChars() throws SQLException {
         connection.createStatement().executeUpdate("delete FROM words where char_length(stem)=1;");
+    }
+    public static void startOver() throws SQLException {
+        connection.createStatement().executeUpdate("update urls set indexed=0");
+        connection.createStatement().executeUpdate("delete from words");
     }
      /*
     public static void indexWords(HashMap<String, Double> TF,String URL) throws SQLException {
