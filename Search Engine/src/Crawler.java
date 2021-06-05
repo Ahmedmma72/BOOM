@@ -139,6 +139,23 @@ public class Crawler implements Runnable {
         return true;
     }
 
+    void AddContent(Document doc, String url) throws SQLException {
+        Connection conn_searchEngine = DBManager.getDBConnection();
+        Connection conn_content = DBManager.getDBConnectionC();
+        assert conn_searchEngine != null;
+        assert conn_content != null;
+        StringBuilder titles = new StringBuilder();
+        Elements elements = doc.select("h1,title");
+        for (Element title : elements) {
+            titles.append(title.text());
+        }
+        if (titles.toString().isEmpty())
+            titles.append(url);
+        conn_searchEngine.createStatement().executeUpdate("UPDATE searchengine.urls SET titles = '"
+                + titles + "' WHERE url = '" + url + "';");
+        conn_content.createStatement().executeUpdate("INSERT INTO content.urlcontent (`url`,`content`) " +
+                "VALUES ('" + url + "','" + doc.wholeText() + "');");
+    }
 
     @Override
     public void run() {
@@ -156,7 +173,6 @@ public class Crawler implements Runnable {
                     System.out.println("Not robot safe URL: " + current);
                 } else {
                     Document doc = Jsoup.connect(current)
-                            .followRedirects(false)
                             .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
                             .referrer("http://www.google.com")
                             .get();
@@ -164,18 +180,20 @@ public class Crawler implements Runnable {
                     for (Element link : elements) {
                         AddURL(link.attr("abs:href"));
                     }
+                    AddContent(doc, current);
                 }
                 UpdateDate(current);
             } catch (Exception e) {
                 System.out.println("Malformed URL: " + current);
                 try {
                     UpdateDate(current);
-                } catch (SQLException throwables) {
-                    System.out.println(throwables.getMessage());
+                } catch (SQLException throwable) {
+                    System.out.println(throwable.getMessage());
                 }
             }
         }
     }
+
     public Crawler() {
         synchronized (URLs) {
             if (URLs.isEmpty()) {
