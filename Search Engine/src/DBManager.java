@@ -2,7 +2,7 @@ import java.sql.*;
 
 public class DBManager {
     static final private String username = "root";
-    static final private String password = "1234";
+    static final private String password = "root";
     static final private String dbName = "SearchEngine";
     static final private String dbName2 = "content";
     static final private String host = "localhost";

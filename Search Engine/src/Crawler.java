@@ -17,6 +17,7 @@ import java.util.*;
 public class Crawler implements Runnable {
     public static final ArrayList<String> URLs = new ArrayList<>();
     public static final HashMap<String, Integer> counts = new HashMap<>();
+    public static Integer counter = 0;
     String current;
 
     public static int countChar(String str, char c) {
@@ -145,10 +146,10 @@ public class Crawler implements Runnable {
         assert conn_searchEngine != null;
         assert conn_content != null;
         String title = doc.title();
-        title=Extract.escapeMetaCharacters(title);
+        title = Extract.escapeMetaCharacters(title);
         System.out.println(title);
-        if(title.isEmpty()){
-            title=url;
+        if (title.isEmpty()) {
+            title = url;
         }
         conn_searchEngine.createStatement().executeUpdate("UPDATE searchengine.urls SET titles = '"
                 + title + "' WHERE url = '" + url + "';");
@@ -180,6 +181,12 @@ public class Crawler implements Runnable {
                         AddURL(link.attr("abs:href"));
                     }
                     AddContent(doc, current);
+                    synchronized (counter) {
+                        counter++;
+                        if (counter > 5000) {
+                            return;
+                        }
+                    }
                 }
                 UpdateDate(current);
             } catch (Exception e) {
