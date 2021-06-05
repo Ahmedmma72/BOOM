@@ -83,7 +83,7 @@ public class Crawler implements Runnable {
             if (!result.next()) {
                 conn.createStatement().executeUpdate("INSERT INTO searchengine.urls (`URL`) VALUES" +
                         " ('" + URL + "');");
-                System.out.println(URL);
+//                System.out.println(URL);
                 synchronized (URLs) {
                     URLs.add(URL);
                 }
@@ -147,7 +147,7 @@ public class Crawler implements Runnable {
         assert conn_content != null;
         String title = doc.title();
         title = Extract.escapeMetaCharacters(title);
-        System.out.println(title);
+//        System.out.println(title);
         if (title.isEmpty()) {
             title = url;
         }
@@ -167,10 +167,10 @@ public class Crawler implements Runnable {
                 } else
                     continue;
             }
-            System.out.println("inside : " + current);
+//            System.out.println("inside : " + current);
             try {
                 if (!isRobotSafe(current)) {
-                    System.out.println("Not robot safe URL: " + current);
+//                    System.out.println("Not robot safe URL: " + current);
                 } else {
                     Document doc = Jsoup.connect(current)
                             .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
@@ -183,6 +183,7 @@ public class Crawler implements Runnable {
                     AddContent(doc, current);
                     synchronized (counter) {
                         counter++;
+                        System.out.println("Counter =  "+counter);
                         if (counter > 5000) {
                             return;
                         }
@@ -190,7 +191,7 @@ public class Crawler implements Runnable {
                 }
                 UpdateDate(current);
             } catch (Exception e) {
-                System.out.println("Malformed URL: " + current);
+//                System.out.println("Malformed URL: " + current);
                 try {
                     UpdateDate(current);
                 } catch (SQLException throwable) {
