@@ -4,11 +4,13 @@ public class DBManager {
     static final private String username = "root";
     static final private String password = "1234";
     static final private String dbName = "SearchEngine";
+    static final private String dbName2 = "content";
     static final private String host = "localhost";
     static final private String port = "3306";
     static final private String connection_url = "jdbc:mysql://" + host + ":" + port + "/" + dbName;
+    static final private String connection_url2 = "jdbc:mysql://" + host + ":" + port + "/" + dbName2;
     static private Connection conn;
-
+    static private Connection connection;
     static public Connection getDBConnection() {
         if (conn == null) {
             try {
@@ -20,9 +22,23 @@ public class DBManager {
         }
         return conn;
     }
+    static public Connection getDBConnectionC() {
+        if (connection == null) {
+            try {
+                connection = DriverManager.getConnection(connection_url2, username, password);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return null;
+            }
+        }
+        return connection;
+    }
     public static void close() throws SQLException {
         if (conn != null) {
             conn.close();
+        }
+        if (connection != null) {
+            connection.close();
         }
     }
     // This main is just for example

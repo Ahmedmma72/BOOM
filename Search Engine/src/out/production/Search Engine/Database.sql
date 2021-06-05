@@ -31,11 +31,3 @@ CREATE TABLE SearchEngine.Words(
    primary key (stem,URLID),
    foreign key(URLID) references URLs(id)
 );
-DROP DATABASE IF EXISTS content;
-CREATE DATABASE content;
-DROP TABLE IF EXISTS content.urlcontent;
-CREATE TABLE content.urlcontent(
- id INT AUTO_INCREMENT PRIMARY KEY,
- url varchar(2048) not null,
- content longtext
-);

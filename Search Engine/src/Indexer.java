@@ -16,7 +16,6 @@ public class Indexer {
     private static ArrayList<String> listOfWordsP;
     private static int countOfWords;
     private static String content;
-    private static String title;
     private static int tCountOfWords;
     public static void main(String[] args) throws SQLException, IOException {
         tCountOfWords=0;
@@ -41,7 +40,7 @@ public class Indexer {
                 LinkedHashMap<String, Double> TF = IndexerDB.calcTF(listOfWords,listOfWordsP,countOfWords);
                 IndexerDB.indexWords(TF, URL);
             }
-            IndexerDB.updateURL(URL, title);
+            IndexerDB.updateURL(URL);
             System.out.printf("finished indexing page %d%n", count);
         }
         IndexerDB.removeChars();
@@ -52,17 +51,7 @@ public class Indexer {
     private static void parsePAGE(String url) throws IOException {
         try {
             countOfWords = 0;
-            Document document = Jsoup.connect(url)
-                    .followRedirects(false)
-                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                    .referrer("http://www.google.com")
-                    .get();
-
-            title = document.title();
-            if(title.isEmpty()){
-                title=url;
-            }
-            content = Extract.escapeMetaCharacters(document.wholeText());
+            content = Extract.escapeMetaCharacters(IndexerDB.getDocument(url));
             if(content.isEmpty()){
                 return;
             }
@@ -73,7 +62,6 @@ public class Indexer {
             tCountOfWords += countOfWords;
         }catch(Exception e){
             System.out.println("error occurred in parse page");
-            title=url;
         }
     }
 }

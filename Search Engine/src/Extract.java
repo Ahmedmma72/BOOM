@@ -11,7 +11,7 @@ public class Extract {
     private static void getStoppingWords(){
         stoppingWords=new HashSet<>();
         try{
-            File f = new File("src/StoppingWords.txt");
+            File f = new File("C:/Users/ahmed/Desktop/Search-Engine/Search Engine/src/StoppingWords.txt");
             Scanner s = new Scanner(f);
             while (s.hasNextLine()){
                 String data = s.nextLine();

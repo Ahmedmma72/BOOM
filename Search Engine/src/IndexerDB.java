@@ -3,18 +3,19 @@ import java.util.*;
 import java.util.Map.Entry;
 public class IndexerDB {
     static private Connection connection;
+    static private Connection contentConnection;
     public static ArrayList<String>preview;
     public static void open() {
         connection=DBManager.getDBConnection();
+        contentConnection=DBManager.getDBConnectionC();
     }
     public static void close() throws SQLException {
         DBManager.close();
     }
-    public static void updateURL(String URL,String title) throws SQLException {
-        String sql = "UPDATE urls set indexed = true, titles = ? WHERE URL = ?";
+    public static void updateURL(String URL) throws SQLException {
+        String sql = "UPDATE urls set indexed = true WHERE URL = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, title);
-        ps.setString(2, URL);
+        ps.setString(1, URL);
         ps.executeUpdate();
     }
     public static String getNonIndexedURL() throws SQLException {
@@ -66,6 +67,17 @@ public class IndexerDB {
         connection.createStatement().executeUpdate("update urls set indexed=0");
         connection.createStatement().executeUpdate("delete from words");
     }
+    public static String getDocument(String URL) throws SQLException {
+        StringBuilder s =new StringBuilder();
+        String sql = "SELECT content FROM urlcontent WHERE URL =  ?";
+        PreparedStatement ps = contentConnection.prepareStatement(sql);
+        ps.setString(1,URL);
+        ResultSet result =  ps.executeQuery();
+        if (result.next()) {
+           s.append(result.getString(1));
+        }
+        return s.toString();
+    }
     public static LinkedHashMap<String,Double> calcTF(ArrayList<String> listOfWords,ArrayList<String> listOfWordsP ,int countOfWords){
         preview=new ArrayList<>();
         LinkedHashMap<String,Double> TF = new LinkedHashMap<>();
@@ -102,6 +114,7 @@ public class IndexerDB {
         }
         return TF;
     }
+
      /*
     public static void indexWords(HashMap<String, Double> TF,String URL) throws SQLException {
         int URLid=URLid(URL);

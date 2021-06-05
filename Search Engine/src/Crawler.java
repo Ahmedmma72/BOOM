@@ -176,7 +176,6 @@ public class Crawler implements Runnable {
             }
         }
     }
-
     public Crawler() {
         synchronized (URLs) {
             if (URLs.isEmpty()) {
