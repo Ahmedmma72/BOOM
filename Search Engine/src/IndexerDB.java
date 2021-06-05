@@ -17,6 +17,10 @@ public class IndexerDB {
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, URL);
         ps.executeUpdate();
+        sql = "UPDATE urls set titles = ? WHERE titles=null";
+        ps = connection.prepareStatement(sql);
+        ps.setString(1, URL);
+        ps.executeUpdate();
     }
     public static String getNonIndexedURL() throws SQLException {
         String sql = "SELECT URL FROM urls WHERE indexed IS false LIMIT 1";

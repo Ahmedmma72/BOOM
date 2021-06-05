@@ -144,15 +144,14 @@ public class Crawler implements Runnable {
         Connection conn_content = DBManager.getDBConnectionC();
         assert conn_searchEngine != null;
         assert conn_content != null;
-        StringBuilder titles = new StringBuilder();
-        Elements elements = doc.select("h1,title");
-        for (Element title : elements) {
-            titles.append(title.text());
+        String title = doc.title();
+        title=Extract.escapeMetaCharacters(title);
+        System.out.println(title);
+        if(title.isEmpty()){
+            title=url;
         }
-        if (titles.toString().isEmpty())
-            titles.append(url);
         conn_searchEngine.createStatement().executeUpdate("UPDATE searchengine.urls SET titles = '"
-                + titles + "' WHERE url = '" + url + "';");
+                + title + "' WHERE url = '" + url + "';");
         conn_content.createStatement().executeUpdate("INSERT INTO content.urlcontent (`url`,`content`) " +
                 "VALUES ('" + url + "','" + doc.wholeText() + "');");
     }
