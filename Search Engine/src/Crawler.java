@@ -3,9 +3,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -191,6 +189,12 @@ public class Crawler implements Runnable {
                     synchronized (counter) {
                         counter++;
                         System.out.println("Counter =  " + counter);
+                        if(Thread.currentThread().getName().equals(String.valueOf(0)))
+                        {
+                            Writer wr = new FileWriter("counter.txt");
+                            wr.write( String.valueOf(counter) );
+                            wr.close();
+                        }
                         if (counter > 5000) {
                             return;
                         }
@@ -228,10 +232,19 @@ public class Crawler implements Runnable {
     public static void main(String[] args) {
         Scanner keyboard = new Scanner(System.in);
         System.out.print("Enter number of threads: ");
+        try {
+            Scanner scanner = new Scanner(new File("counter.txt"));
+            if (scanner.hasNextInt())
+                Crawler.counter = scanner.nextInt();
+        } catch (Exception ignored) {
+
+        }
         int x = keyboard.nextInt();
         Thread[] threads = new Thread[x];
+        int i = 0;
         for (Thread t : threads) {
             t = new Thread(new Crawler());
+            t.setName(String.valueOf(i++));
             t.start();
         }
     }
