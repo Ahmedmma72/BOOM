@@ -81,7 +81,7 @@ public class Crawler implements Runnable {
             ResultSet result =
                     conn.createStatement().executeQuery("Select * FROM searchengine.urls where URL = \"" + URL + "\"");
             if (!result.next()) {
-                conn.createStatement().executeUpdate("INSERT INTO searchengine.urls (`URL`) VALUES" +
+                conn.createStatement().executeUpdate("INSERT IGNORE INTO searchengine.urls (`URL`) VALUES" +
                         " ('" + URL + "');");
 //                System.out.println(URL);
                 synchronized (URLs) {
@@ -90,7 +90,7 @@ public class Crawler implements Runnable {
             }
         } catch (SQLException e) {
             System.out.println("Select * FROM searchengine.urls where URL = \"" + URL + "\"");
-            System.out.println("INSERT INTO searchengine.urls (`URL`) VALUES" +
+            System.out.println("INSERT  IGNORE  INTO searchengine.urls (`URL`) VALUES" +
                     " ('" + URL + "');");
         }
     }
@@ -159,7 +159,7 @@ public class Crawler implements Runnable {
         }
         conn_searchEngine.createStatement().executeUpdate("UPDATE searchengine.urls SET titles = '"
                 + title + "' WHERE url = '" + url + "';");
-        conn_content.createStatement().executeUpdate("INSERT INTO content.urlcontent (`url`,`content`) " +
+        conn_content.createStatement().executeUpdate("INSERT IGNORE INTO content.urlcontent (`url`,`content`) " +
                 "VALUES ('" + url + "','" + doc.wholeText() + "');");
     }
 
