@@ -74,7 +74,6 @@ public class sedb {
 		}
 	}
 	
-	
 	public static String getStringOfSuggestions (String word)
 	{
 		String mylist="" ;
@@ -100,23 +99,27 @@ public class sedb {
 		return mylist;
 	}
 	
-	
-	
-	
 	public static List<Records> getRecord (String word,int start,int total)
 	{
 		List<Records> mylist = new ArrayList<Records>();
 		try {
 			Connection con =getConnection();
-			String myquery = "SELECT titles,url,paragraphs From urls WHERE id in (SELECT URLID FROM words WHERE stem='" + word + "') LIMIT " + (start-1)+","+total;
-			PreparedStatement ps = con.prepareStatement(myquery);
-			ResultSet results = ps.executeQuery();
-			while(results.next())
+			String myquery1 = "SELECT titles,url From urls WHERE id in (SELECT URLID FROM words WHERE stem='" + word + "') LIMIT " + (start-1)+","+total;
+			String myquery2 ="SELECT preview FROM words WHERE stem='" + word +"' LIMIT " + (start-1)+","+total;
+			
+			
+			PreparedStatement ps1 = con.prepareStatement(myquery1);
+			PreparedStatement ps2 = con.prepareStatement(myquery2);
+			ResultSet results1 = ps1.executeQuery();
+			ResultSet results2 = ps2.executeQuery();
+			
+			
+			while(results1.next() && results2.next())
 			{
 				Records r =new Records();
-				r.setTitle(results.getString(1));
-				r.setUrl(results.getString(2));
-				r.setParagraphs(results.getString(3));
+				r.setTitle(results1.getString(1));
+				r.setUrl(results1.getString(2));
+				r.setParagraphs(results2.getString(1));
 				mylist.add(r);
 			}
 			con.close();
@@ -131,3 +134,4 @@ public class sedb {
 	
 
 }
+

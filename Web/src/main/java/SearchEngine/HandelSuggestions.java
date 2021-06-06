@@ -27,7 +27,12 @@ public class HandelSuggestions extends HttpServlet {
 		//response.getWriter().append("Served at: ").append(request.getContextPath());
 		response.setContentType("text/html");
 		PrintWriter out =response.getWriter();
-		out.print(sedb.getStringOfSuggestions(request.getParameter("value"))); 
+		String value =request.getParameter("value");
+ 
+		if(value.isEmpty())
+			out.print("");
+		else
+		out.print(sedb.getStringOfSuggestions(value)); 
 	}
 
 	/**

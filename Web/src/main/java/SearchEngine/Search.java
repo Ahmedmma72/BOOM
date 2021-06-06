@@ -2,6 +2,7 @@ package SearchEngine;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -28,8 +29,111 @@ public class Search extends HttpServlet {
 			
 		  out=response.getWriter();
 		  String SearchTopic =request.getParameter("topic");
-		  sedb.setsearched(SearchTopic);
-		  int Page = Integer.parseInt(request.getParameter("page"));
+		  String ShowSearchTopic=SearchTopic;
+		  String IsItFirstPage = request.getParameter("page");
+		  String addpage="";
+		  if(IsItFirstPage == null) //user just searched for a new topic 
+		  {  IsItFirstPage="1";	
+		     sedb.setsearched(SearchTopic);
+		     addpage="+\"&page=1\"";
+		  }
+		  
+		  int Page = Integer.parseInt(IsItFirstPage);
+		  //check on the SearchTopic for english and stop words and meta chars
+		  ArrayList<String> mylist = new ArrayList<>();		
+		  mylist= Extract.removeStoppingWords(Extract.splitSentence(Extract.escapeMetaCharacters(SearchTopic)));
+		  if( (mylist.size()) == 0 || mylist.get(0)=="")	//stop words
+		  {
+			  out.println("\r\n"
+			  		+ "<!DOCTYPE html>\r\n"
+			  		+ "<html lang=\"en\">\r\n"
+			  		+ "\r\n"
+			  		+ "<head>\r\n"
+			  		+ "    <meta charset=\"UTF-8\">\r\n"
+			  		+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n"
+			  		+ "    <meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">\r\n"
+			  		+ "    <link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css\" integrity=\"sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB\"\r\n"
+			  		+ "        crossorigin=\"anonymous\">\r\n"
+			  		+ "\r\n"
+			  		+ "    <title>stop words</title>\r\n"
+			  		+ "</head>\r\n"
+			  		+ "\r\n"
+			  		+ "<body >\r\n"
+			  		+ "\r\n"
+			  		+ "    <header>\r\n"
+			  		+ "        <h1 class=\"display-1 text-center  my-0 bg-light\"><a class=\"text-dark\" href=\"BOOM.html\">BOOM</a></h1>\r\n"
+			  		+ "        </br>\r\n"
+			  		+ "        </br>\r\n"
+			  		+ "    </header>\r\n"
+			  		+ "\r\n"
+			  		+ "    <div class=\"container\">\r\n"
+			  		+ "        <div class=\"alert alert-warning \">\r\n"
+			  		+ "            <h1><strong>BOOM...That's not Right</strong></h1>\r\n"
+			  		+ "            You may have entered some stop words (meaningless words) in the search box.</br>\r\n"
+			  		+ "            In order to get results you must enter a normal word<strong>(not a stop word)</strong> .\r\n"
+			  		+ "        </div>\r\n"
+			  		+ "    </div>\r\n"
+			  		+ "    <!-- ./container -->\r\n"
+			  		+ "\r\n"
+			  		+ "    <script src=\"https://code.jquery.com/jquery-3.3.1.slim.min.js\" integrity=\"sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo\"\r\n"
+			  		+ "        crossorigin=\"anonymous\"></script>\r\n"
+			  		+ "    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js\" integrity=\"sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49\"\r\n"
+			  		+ "        crossorigin=\"anonymous\"></script>\r\n"
+			  		+ "    <script src=\"https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js\" integrity=\"sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T\"\r\n"
+			  		+ "        crossorigin=\"anonymous\"></script>\r\n"
+			  		+ "</body>\r\n"
+			  		+ "\r\n"
+			  		+ "</html>\r\n"
+			  		+ "");
+			  return;
+		  }
+		  else if( (mylist.size()) > 1 ) 	//more than one word
+		  {
+			  out.println("<!DOCTYPE html>\r\n"
+			  		+ "<html lang=\"en\">\r\n"
+			  		+ "\r\n"
+			  		+ "<head>\r\n"
+			  		+ "    <meta charset=\"UTF-8\">\r\n"
+			  		+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n"
+			  		+ "    <meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">\r\n"
+			  		+ "    <link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css\" integrity=\"sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB\"\r\n"
+			  		+ "        crossorigin=\"anonymous\">\r\n"
+			  		+ "\r\n"
+			  		+ "    <title>Not Supported</title>\r\n"
+			  		+ "</head>\r\n"
+			  		+ "\r\n"
+			  		+ "<body >\r\n"
+			  		+ "\r\n"
+			  		+ "    <header>\r\n"
+			  		+ "        <h1 class=\"display-1 text-center  bg-light\"><a class=\"text-dark\" href=\"BOOM.html\">BOOM</a></h1>\r\n"
+			  		+ "        <br/>\r\n"
+			  		+ "        <br/>\r\n"
+			  		+ "    </header>\r\n"
+			  		+ "    <div class=\"container\">\r\n"
+			  		+ "        <div class=\"alert alert-warning\">\r\n"
+			  		+ "            <h1><strong>BOOM...That's not Supported yet</strong></h1>\r\n"
+			  		+ "            You may have entered more than one word in the search box.</br>\r\n"
+			  		+ "            Currently you can search on <strong>one word</strong> only.\r\n"
+			  		+ "        </div>\r\n"
+			  		+ "    </div>\r\n"
+			  		+ "    <!-- ./container -->\r\n"
+			  		+ "    <script src=\"https://code.jquery.com/jquery-3.3.1.slim.min.js\" integrity=\"sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo\"\r\n"
+			  		+ "        crossorigin=\"anonymous\"></script>\r\n"
+			  		+ "    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js\" integrity=\"sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49\"\r\n"
+			  		+ "        crossorigin=\"anonymous\"></script>\r\n"
+			  		+ "    <script src=\"https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js\" integrity=\"sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T\"\r\n"
+			  		+ "        crossorigin=\"anonymous\"></script>\r\n"
+			  		+ "</body>\r\n"
+			  		+ "\r\n"
+			  		+ "</html>\r\n"
+			  		+ "\r\n"
+			  		+ "");
+			  return;
+		  }
+		  else
+		  {
+			  SearchTopic=mylist.get(0);
+		  }
 		  String stemed=Extract.stemS(SearchTopic);
 		  //////////////////////////////////////////////////////////////////////////////////////////////////////
 		 // String message = "Your Searched about  (" + stemed + "), and this is page no." + Page + " thank you<br>";
@@ -61,9 +165,9 @@ public class Search extends HttpServlet {
 		  		+ "                <span class=\"navbar-toggler-icon\"></span>\r\n"
 		  		+ "            </button>\r\n"
 		  		+ "            <div class=\"collapse navbar-collapse\" id=\"navbarNav\">\r\n"
-		  		+ "                <form class=\"form-inline\" action=Search?page=1 method=post id=Search>\r\n"
+		  		+ "                <form class=\"form-inline\" action=Search?page=1 method=get id=Search>\r\n"
 		  		+ "                    <div class=\"input-group \">\r\n"
-		  		+ "                        <input class=\"form-control\" type=\"text\" placeholder=\"Search Boom\" name=\"topic\" value=\"" +SearchTopic + "\"autocomplete=\"off\" list=\"suggestions\" id=\"topic\" oninput=\"Suggest()\" required>\r\n"
+		  		+ "                        <input class=\"form-control\" type=\"text\" placeholder=\"Search Boom\" name=\"topic\" value=\"" +ShowSearchTopic + "\"autocomplete=\"off\" list=\"suggestions\" id=\"topic\" oninput=\"Suggest()\" required>\r\n"
 		  		+"                                            <datalist id=\"suggestions\">\r\n"
 		  		+ "                                            </datalist>"
 		  		+ "                        <div class=\"input-group-append\">\r\n"
@@ -87,20 +191,12 @@ public class Search extends HttpServlet {
 
 		  List<Records> myResults=sedb.getRecord(stemed,(((Page-1)*10)+1), 10);
 		  /////////////////////////////////////////////////////////////////////////////////////////////////////////printing results
+		  out.println("<div id=\"bd\">");
 		  for(Records r:myResults)
 		  {
 		  String title =r.getTitle();
 		  String URL =r.getUrl();
-		  String paragraph = "";
-		  /////////////////////////////////////////////////////////////////////////////////////////////////////////to be changed later
-		  if ((r.getParagraphs()).length() > 400) 
-		  {
-			  paragraph = (r.getParagraphs()).substring(0, 400) + "......";
-		  } 
-		  else
-		  {
-			  paragraph = (r.getParagraphs()) + "......";
-		  }
+		  String paragraph = r.getParagraphs()+ "......";
 		  /////////////////////////////////////////////////////////////////////////////////////////////////////////
 		  
 		  String PageContent="        <div class=\"card border-white my-0\">\r\n"
@@ -113,7 +209,7 @@ public class Search extends HttpServlet {
 		 
 		  out.println(PageContent);
 		  }
-		  
+		  out.println("</div>");
 		  ///////////////////////////////////////////////////////////////////////////////////////////////////////// Pagings
 		  String navbar="";
 		  if(Page == 1)
@@ -126,7 +222,7 @@ public class Search extends HttpServlet {
 			  navbar="                <nav>\r\n"
 			  		+ "                    <ul class=\"pagination justify-content-center mt-5\" >\r\n"
 			  		+ "                        <li class=\"page-item\">\r\n"
-			  		+ "                            <a class=\"page-link\" href=\"Search?page=" + String.valueOf(Page-1) + "&topic="+stemed+"\">Previous</a>\r\n"
+			  		+ "                            <a class=\"page-link\" href=\"Search?page=" + String.valueOf(Page-1) + "&topic="+ShowSearchTopic+"\">Previous</a>\r\n"
 			  				+ "                        </li>";		  
 			  
 		  
@@ -158,7 +254,7 @@ public class Search extends HttpServlet {
 			  else
 				  navbar+="<li class=\"page-item\">";
 			  String pg = String.valueOf(i);
-			  navbar +="<a class=\"page-link\" href=\"Search?page=" + pg + "&topic="+stemed+"\">" + pg + "</a>\r\n"
+			  navbar +="<a class=\"page-link\" href=\"Search?page=" + pg + "&topic="+ShowSearchTopic+"\">" + pg + "</a>\r\n"
 			  		+ "                </li>";
 		  }
 		  if(Page >= PageMax)
@@ -169,7 +265,7 @@ public class Search extends HttpServlet {
 			  		+ "        </nav>";
 		  else
 			  navbar+="               <li class=\"page-item\">\r\n"
-			  		+ "                    <a class=\"page-link\" href=\"Search?page=" + String.valueOf(Page+1) + "&topic="+stemed+"\">Next</a>\r\n"
+			  		+ "                    <a class=\"page-link\" href=\"Search?page=" + String.valueOf(Page+1) + "&topic="+ShowSearchTopic+"\">Next</a>\r\n"
 			  		+ "                </li>\r\n"
 			  		+ "            </ul>\r\n"
 			  		+ "        </nav>";
@@ -211,6 +307,13 @@ public class Search extends HttpServlet {
 		  		+ "	 } \r\n"
 		  		+ " }\r\n"
 		  		+ "</script>\r\n"
+		  		+"<script> document.getElementById(\"bd\").innerHTML = document.getElementById(\"bd\").innerHTML.replace(/"+ShowSearchTopic+"/g, '<strong>"+ShowSearchTopic+"</strong>'); </script>"
+		  		+"<script> document.getElementById(\"bd\").innerHTML = document.getElementById(\"bd\").innerHTML.replace(/"+stemed+"/g, '<strong>"+stemed+"</strong>'); </script>"
+		  		+"<script>\r\n"
+		  		+ "if ( window.history.replaceState ) {\r\n"
+		  		+ "  window.history.replaceState( null, null,window.location.href" +addpage+ ");\r\n"
+		  		+ "}\r\n"
+		  		+ "</script>"
 		  		+ "    <script src=\"https://code.jquery.com/jquery-3.3.1.slim.min.js\" integrity=\"sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo\"\r\n"
 		  		+ "        crossorigin=\"anonymous\"></script>\r\n"
 		  		+ "    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js\" integrity=\"sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49\"\r\n"
