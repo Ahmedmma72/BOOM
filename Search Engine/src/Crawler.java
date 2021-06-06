@@ -101,6 +101,12 @@ public class Crawler implements Runnable {
         conn.createStatement().executeUpdate("UPDATE searchengine.urls SET crawldate = current_date() WHERE url = '" + URL + "';");
     }
 
+    public void UpdateDefaultDate(String URL) throws SQLException {
+        Connection conn = DBManager.getDBConnection();
+        assert conn != null;
+        conn.createStatement().executeUpdate("UPDATE searchengine.urls SET crawldate = '2001-01-01' WHERE url = '" + URL + "';");
+    }
+
     public static boolean isRobotSafe(String link) throws IOException {
         URL url = new URL(link);
         link = url.getPath();
@@ -170,7 +176,7 @@ public class Crawler implements Runnable {
 //            System.out.println("inside : " + current);
             try {
                 if (!isRobotSafe(current)) {
-//                    System.out.println("Not robot safe URL: " + current);
+                    UpdateDefaultDate(current);
                 } else {
                     Document doc = Jsoup.connect(current)
                             .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
@@ -181,19 +187,19 @@ public class Crawler implements Runnable {
                         AddURL(link.attr("abs:href"));
                     }
                     AddContent(doc, current);
+                    UpdateDate(current);
                     synchronized (counter) {
                         counter++;
-                        System.out.println("Counter =  "+counter);
+                        System.out.println("Counter =  " + counter);
                         if (counter > 5000) {
                             return;
                         }
                     }
                 }
-                UpdateDate(current);
             } catch (Exception e) {
 //                System.out.println("Malformed URL: " + current);
                 try {
-                    UpdateDate(current);
+                    UpdateDefaultDate(current);
                 } catch (SQLException throwable) {
                     System.out.println(throwable.getMessage());
                 }

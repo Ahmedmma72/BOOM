@@ -44,3 +44,7 @@ CREATE TABLE content.urlcontent(
  url varchar(2048) not null,
  content longtext
 );
+
+
+SELECT count(*) FROM searchengine.urls where crawldate is not null and crawldate > '2001-01-01';
+SELECT count(*) FROM content.urlcontent where content is not null;
