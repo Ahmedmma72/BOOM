@@ -23,7 +23,7 @@ public class IndexerDB {
         ps.executeUpdate();
     }
     public static String getNonIndexedURL() throws SQLException {
-        String sql = "SELECT URL FROM urls WHERE indexed IS false LIMIT 1";
+        String sql = "SELECT URL FROM urls WHERE indexed IS false and crawldate is not null and crawldate > '2001-01-01' LIMIT 1";
         ResultSet result = connection.createStatement().executeQuery(sql);
         if (result.next()) {
             return result.getString(1);

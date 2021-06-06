@@ -3,9 +3,9 @@ CREATE DATABASE SearchEngine;
 DROP TABLE IF EXISTS SearchEngine.urls;
 CREATE TABLE SearchEngine.urls(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    url varchar(2048) NOT NULL,
+    url varchar(200) NOT NULL unique,
     crawldate date default null,
-    titles Text,
+    titles varchar(1000) default "No title available" ,
     indexed    bool default 0
 );
 INSERT INTO searchengine.urls (`url`) VALUES ('https://www.msn.com/');
@@ -41,6 +41,8 @@ CREATE DATABASE content;
 DROP TABLE IF EXISTS content.urlcontent;
 CREATE TABLE content.urlcontent(
  id INT AUTO_INCREMENT PRIMARY KEY,
- url varchar(2048) not null,
+ url varchar(200) not null unique,
  content longtext
 );
+
+
