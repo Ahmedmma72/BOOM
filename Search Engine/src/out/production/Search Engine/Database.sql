@@ -20,7 +20,7 @@ INSERT INTO searchengine.urls (`url`) VALUES ('https://www.google.com/');
 
 -- SELECT * FROM searchengine.urls where crawldate = NULL;
 SET SQL_SAFE_UPDATES = 0;
-UPDATE searchengine.urls SET crawldate = current_date() WHERE url = 'https://www.google.com/';
+UPDATE searchengine.urls SET crawldate = '2001-01-01' WHERE url = 'https://www.google.com/';
 DROP TABLE IF EXISTS SearchEngine.searched;
 CREATE TABLE SearchEngine.searched(
 id int(11) auto_increment primary key,

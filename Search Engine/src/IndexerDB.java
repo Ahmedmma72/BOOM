@@ -96,13 +96,13 @@ public class IndexerDB {
                     TF.put(sword, 1.0);
                     int count=listOfWordsP.indexOf(word);
                     int i;
-                    if(count>10){
-                        i=count-10;
+                    if(count>8){
+                        i=count-8;
                     }
                     else{
                         i=0;
                     }
-                    while(i<listOfWordsP.size()&&i<count+10){
+                    while(i<listOfWordsP.size()&&i<count+7){
                         s.append(listOfWordsP.get(i));
                         s.append(" ");
                         i++;
