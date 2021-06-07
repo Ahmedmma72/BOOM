@@ -3,9 +3,9 @@ CREATE DATABASE SearchEngine;
 DROP TABLE IF EXISTS SearchEngine.urls;
 CREATE TABLE SearchEngine.urls(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    url varchar(2048) NOT NULL,
+    url varchar(200) NOT NULL unique,
     crawldate date default null,
-    titles Text,
+    titles varchar(1000) default "No title available" ,
     indexed    bool default 0
 );
 INSERT INTO searchengine.urls (`url`) VALUES ('https://www.msn.com/');
@@ -20,7 +20,7 @@ INSERT INTO searchengine.urls (`url`) VALUES ('https://www.google.com/');
 
 -- SELECT * FROM searchengine.urls where crawldate = NULL;
 SET SQL_SAFE_UPDATES = 0;
-UPDATE searchengine.urls SET crawldate = current_date() WHERE url = 'https://www.google.com/';
+UPDATE searchengine.urls SET crawldate = '2001-01-01' WHERE url = 'https://www.google.com/';
 DROP TABLE IF EXISTS SearchEngine.searched;
 CREATE TABLE SearchEngine.searched(
 id int(11) auto_increment primary key,
@@ -41,10 +41,8 @@ CREATE DATABASE content;
 DROP TABLE IF EXISTS content.urlcontent;
 CREATE TABLE content.urlcontent(
  id INT AUTO_INCREMENT PRIMARY KEY,
- url varchar(2048) not null,
+ url varchar(200) not null unique,
  content longtext
 );
 
 
-SELECT count(*) FROM searchengine.urls where crawldate is not null and crawldate > '2001-01-01';
-SELECT count(*) FROM content.urlcontent where content is not null;
