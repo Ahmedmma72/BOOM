@@ -32,6 +32,7 @@ public class Search extends HttpServlet {
 		  String ShowSearchTopic=SearchTopic;
 		  String IsItFirstPage = request.getParameter("page");
 		  String addpage="";
+		  //System.out.println(IsItFirstPage);
 		  if(IsItFirstPage == null) //user just searched for a new topic 
 		  {  IsItFirstPage="1";	
 		     sedb.setsearched(SearchTopic);
@@ -191,7 +192,7 @@ public class Search extends HttpServlet {
 
 		  List<Records> myResults=sedb.getRecord(stemed,(((Page-1)*10)+1), 10);
 		  /////////////////////////////////////////////////////////////////////////////////////////////////////////printing results
-		  out.println("<div id=\"bd\">");
+		  out.println("<div>");
 		  for(Records r:myResults)
 		  {
 		  String title =r.getTitle();
@@ -202,7 +203,7 @@ public class Search extends HttpServlet {
 		  String PageContent="        <div class=\"card border-white my-0\">\r\n"
 		  		+ "            <div class=\"card-body\"> \r\n"
 		  		+ "                <h5 class=\"card-title my-0\"><a href=" + URL + ">" + title + "</a><br/><h6 class=\" text-success\">" + URL + "</h6></h5>\r\n"
-		  				+ "                <p class=\"card-text\">" + paragraph + "</p>\r\n"
+		  				+ "                <p class=\"card-text\" >" + paragraph + "</p>\r\n"
 		  						+ "            </div>\r\n"
 		  						+ "        </div>\r\n"
 		  						+ "";
@@ -307,8 +308,8 @@ public class Search extends HttpServlet {
 		  		+ "	 } \r\n"
 		  		+ " }\r\n"
 		  		+ "</script>\r\n"
-		  		+"<script> document.getElementById(\"bd\").innerHTML = document.getElementById(\"bd\").innerHTML.replace(/"+ShowSearchTopic+"/g, '<strong>"+ShowSearchTopic+"</strong>'); </script>"
-		  		+"<script> document.getElementById(\"bd\").innerHTML = document.getElementById(\"bd\").innerHTML.replace(/"+stemed+"/g, '<strong>"+stemed+"</strong>'); </script>"
+		  		+"<script>var x=document.getElementsByClassName(\"card-text\");for(var i=0;i< x.length;i++){x[i].innerHTML = x[i].innerHTML.replace(/" + ShowSearchTopic +"/g, '<strong>" +ShowSearchTopic+"</strong>');} </script>"
+		  		+"<script>var x=document.getElementsByClassName(\"card-text\");for(var i=0;i< x.length;i++){x[i].innerHTML = x[i].innerHTML.replace(/" + stemed +"/g, '<strong>" +stemed+"</strong>');} </script>"
 		  		+"<script>\r\n"
 		  		+ "if ( window.history.replaceState ) {\r\n"
 		  		+ "  window.history.replaceState( null, null,window.location.href" +addpage+ ");\r\n"
