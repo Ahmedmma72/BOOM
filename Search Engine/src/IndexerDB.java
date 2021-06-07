@@ -64,8 +64,9 @@ public class IndexerDB {
         }
         return s.toString();
     }
-    public static void removeChars() throws SQLException {
+    public static void clean() throws SQLException {
         connection.createStatement().executeUpdate("delete FROM words where char_length(stem)=1;");
+        connection.createStatement().executeUpdate("delete FROM urls where indexed = 0");
     }
     public static void startOver() throws SQLException {
         connection.createStatement().executeUpdate("update urls set indexed=0");

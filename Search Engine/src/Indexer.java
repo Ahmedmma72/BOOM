@@ -43,7 +43,7 @@ public class Indexer {
             IndexerDB.updateURL(URL);
             System.out.printf("finished indexing page %d%n", count);
         }
-        IndexerDB.removeChars();
+        IndexerDB.clean();
         long endTime = System.currentTimeMillis();
         System.out.printf("Finished Indexing %d words at %d %n",tCountOfWords,endTime-startTime);
         IndexerDB.close();
